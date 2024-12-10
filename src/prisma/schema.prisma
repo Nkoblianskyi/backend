@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id                     Int               @id @default(autoincrement())
+  name                   String
+  price                  Float
+  description            String
+  rating                 Float?
+  reviewCount            Int?
+  category               String?
+  mainImage              String
+  specialOffer           Boolean?
+  popular                Boolean?
+  Image                  Image[]           @relation("ProductImages")
+  Color                  Color[]           @relation("ProductColors")
+  Dimension              Dimension[]       @relation("ProductDimensions")
+  relatedProducts        RelatedProduct[]  @relation("ProductRelated")
+  reverseRelatedProducts RelatedProduct[]  @relation("RelatedProductRelated")
+}
+
+model RelatedProduct {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  relatedId Int
+  product   Product @relation("ProductRelated", fields: [productId], references: [id])
+  related   Product @relation("RelatedProductRelated", fields: [relatedId], references: [id])
+}
+
+model Image {
+  id        Int     @id @default(autoincrement())
+  url       String
+  productId Int
+  product   Product @relation("ProductImages", fields: [productId], references: [id])
+}
+
+model Color {
+  id        Int     @id @default(autoincrement())
+  name      String
+  productId Int
+  product   Product @relation("ProductColors", fields: [productId], references: [id])
+}
+
+model Dimension {
+  id        Int     @id @default(autoincrement())
+  width     Int
+  height    Int
+  depth     Int
+  productId Int
+  product   Product @relation("ProductDimensions", fields: [productId], references: [id])
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  role     String
+}
