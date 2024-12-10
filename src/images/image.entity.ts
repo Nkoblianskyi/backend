@@ -6,8 +6,11 @@ export class Image {
   id: number;
 
   @Column()
-  url: string;
+  key: string;
 
   @Column()
-  description: string;
+  url: string;
+
+  @Column({ nullable: true })
+  uploadedAt: Date;
 }

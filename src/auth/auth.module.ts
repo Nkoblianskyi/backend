@@ -9,15 +9,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   controllers: [AuthController],
   providers: [AuthService],
   imports: [
-    PrismaModule,  // Імпортуємо PrismaModule для доступу до бази даних
-    ConfigModule.forRoot(),  // Ініціалізація конфігурацій
+    PrismaModule,
+    ConfigModule.forRoot(),
     JwtModule.registerAsync({
-      imports: [ConfigModule],  // Використовуємо ConfigModule для доступу до секрету
+      imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),  // Використовуємо секрет з конфігурацій
-        signOptions: { expiresIn: '1h' },  // Час життя токена
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1h' },
       }),
-      inject: [ConfigService],  // Інжектуємо ConfigService
+      inject: [ConfigService],
     }),
   ],
 })

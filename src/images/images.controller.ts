@@ -1,19 +1,24 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { S3Service } from '../services/awsService';
+import { ImagesService } from './images.service';
 
 @Controller('images')
 export class ImagesController {
-  constructor(private readonly s3Service: S3Service) {}
+  constructor(
+    private readonly s3Service: S3Service,
+    private readonly imagesService: ImagesService,
+  ) {}
 
-  // Отримання списку всіх зображень
+
   @Get()
   async listImages(): Promise<string[]> {
-    return this.s3Service.listImages();
+    const images = await this.imagesService.getAllImages();
+    return images.map(image => image.url);
   }
 
-  // Отримання одного зображення за ключем
+
   @Get(':key')
   async getImageUrl(@Param('key') key: string): Promise<string> {
-    return this.s3Service.getImageUrl(`images/${key}`);
+    return this.imagesService.getImageUrl(key);
   }
 }

@@ -12,7 +12,7 @@ export class AuthController {
     try {
       return await this.authService.register(body);
     } catch (error) {
-      throw error; // Перекидаємо помилку, якщо є
+      throw error;
     }
   }
 

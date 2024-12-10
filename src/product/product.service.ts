@@ -40,7 +40,6 @@ interface UpdateProductDto {
 export class ProductService {
   constructor(private readonly prisma: PrismaService) { }
 
-  // Створення нового продукту
   async createProduct(data: CreateProductDto): Promise<Product> {
     const {
       name,
@@ -64,29 +63,29 @@ export class ProductService {
         name,
         description,
         price,
-        category, // Категорія
-        rating, // Рейтинг
-        reviewCount, // Кількість відгуків
-        mainImage, // Головне зображення
-        specialOffer, // Спеціальна пропозиція
-        popular, // Популярний продукт
+        category,
+        rating,
+        reviewCount,
+        mainImage,
+        specialOffer,
+        popular,
         Image: {
           create: {
-            url: imageUrl, // Зображення
+            url: `${process.env.API_URL}/images/${imageUrl}`,
           },
         },
         Dimension: {
           create: {
-            type: 'custom', // Тип розміру
-            value: `${width}x${height}x${depth}`, // Розміри як рядок
-            width, // Ширина
-            height, // Висота
-            depth, // Глибина
+            type: 'custom',
+            value: `${width}x${height}x${depth}`,
+            width,
+            height,
+            depth,
           },
         },
         Color: {
           create: colors.map((color) => ({
-            name: color, // Створення кольорів
+            name: color,
           })),
         },
       },
@@ -100,7 +99,7 @@ export class ProductService {
     return product;
   }
 
-  // Отримання всіх продуктів з усіма їхніми деталями
+
   async getAllProducts(): Promise<Product[]> {
     return this.prisma.product.findMany({
       include: {
@@ -111,9 +110,9 @@ export class ProductService {
     });
   }
 
-  // Отримання продукту за його ID
+
   async getProductById(productId: number): Promise<Product | null> {
-    console.log(`Fetching product with id: ${productId}`); // Логування ID
+    console.log(`Fetching product with id: ${productId}`);
     try {
       const product = await this.prisma.product.findUnique({
         where: { id: productId },
@@ -132,7 +131,7 @@ export class ProductService {
       console.log('Fetched product:', product);
       return product;
     } catch (error) {
-      console.error('Error fetching product:', error); // Логування помилок
+      console.error('Error fetching product:', error);
       throw new Error('Internal server error');
     }
   }
@@ -171,12 +170,12 @@ export class ProductService {
     if (specialOffer !== undefined) updateData.specialOffer = specialOffer;
     if (popular !== undefined) updateData.popular = popular;
 
-    // Оновлення зображення
+
     if (imageUrl) {
       updateData.Image = { update: { url: imageUrl } };
     }
 
-    // Оновлення розмірів (переконвертовуємо числові значення у строки)
+
     if (width || height || depth) {
       updateData.Dimension = {
         update: {
@@ -187,15 +186,15 @@ export class ProductService {
       };
     }
 
-    // Оновлення кольорів
+
     if (colors) {
       updateData.Color = {
-        deleteMany: {}, // Видалення старих кольорів
-        create: colors.map((color) => ({ name: color })), // Додавання нових кольорів
+        deleteMany: {},
+        create: colors.map((color) => ({ name: color })),
       };
     }
 
-    // Оновлюємо продукт в базі даних
+
     const updatedProduct = await this.prisma.product.update({
       where: { id: productId },
       data: updateData,
@@ -210,23 +209,22 @@ export class ProductService {
   }
 
   async getRandomRecommendedProducts(excludedProductId: number, limit: number = 5): Promise<Product[]> {
-    // Вибірка випадкових продуктів, не включаючи поточний продукт
+
     const randomProducts = await this.prisma.product.findMany({
       where: {
         NOT: {
-          id: excludedProductId, // Виключаємо поточний продукт
+          id: excludedProductId,
         },
       },
-      take: limit, // Кількість товарів, які потрібно отримати
+      take: limit,
       orderBy: {
-        id: 'asc', // Можна використовувати інші стратегії для випадковості
+        id: 'asc',
       },
     });
 
     return randomProducts;
   }
 
-  // Видалення продукту
   async deleteProduct(productId: number): Promise<void> {
     await this.prisma.product.delete({
       where: { id: productId },

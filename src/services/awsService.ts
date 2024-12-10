@@ -16,11 +16,10 @@ export class S3Service {
     });
   }
 
-  // Отримання списку файлів у директорії `images`
   async listImages(): Promise<string[]> {
     const command = new ListObjectsV2Command({
       Bucket: this.bucketName,
-      Prefix: 'images/', // Директорія в бакеті
+      Prefix: 'images/',
     });
 
     const response = await this.s3.send(command);
@@ -28,14 +27,16 @@ export class S3Service {
       return [];
     }
 
-    // Формування URL для кожного зображення
     return response.Contents.map(item => 
       `https://${this.bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${item.Key}`
     );
   }
 
-  // Отримання одного файлу за ключем
+
   async getImageUrl(key: string): Promise<string> {
-    return `https://${this.bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    const imageUrl = `https://${this.bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    
+    const apiUrl = process.env.API_URL || 'https://full-stack-store-one.vercel.app';
+    return `${apiUrl}/images/${key}`;
   }
 }

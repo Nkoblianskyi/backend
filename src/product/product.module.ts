@@ -4,9 +4,9 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { ProductController } from './product.controller';
 
 @Module({
-  imports: [PrismaModule], // Імпортуємо PrismaModule, щоб мати доступ до PrismaService
+  imports: [PrismaModule],
   providers: [ProductService],
   controllers: [ProductController],
-  exports: [ProductService], // Експортуємо ProductService для використання в інших частинах проекту
+  exports: [ProductService],
 })
 export class ProductModule {}
