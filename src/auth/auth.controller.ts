@@ -21,7 +21,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard)
   async getMe(@Request() req) {
-    console.log('User from AuthGuard:', req.user); // Логування користувача
+    console.log('User from AuthGuard:', req.user);
     return req.user;
   }
 

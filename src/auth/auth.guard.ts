@@ -1,3 +1,4 @@
+// auth.guard.ts
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
@@ -17,7 +18,7 @@ export class AuthGuard implements CanActivate {
 
         try {
             const user = this.jwtService.verify(token);
-            request.user = user; 
+            request.user = user;
             return true;
         } catch (error) {
             throw new UnauthorizedException('Invalid token');
