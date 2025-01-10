@@ -1,40 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { Product, Color, Dimension, Image } from '@prisma/client';
-
-interface CreateProductDto {
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-  width: string;
-  height: string;
-  depth: string;
-  colors: string[];
-  category?: string;
-  rating?: number;
-  reviewCount?: number;
-  mainImage?: string;
-  specialOffer?: boolean;
-  popular?: boolean;
-}
-
-interface UpdateProductDto {
-  name?: string;
-  description?: string;
-  price?: number;
-  imageUrl?: string;
-  width?: string;
-  height?: string;
-  depth?: string;
-  colors?: string[];
-  category?: string;
-  rating?: number;
-  reviewCount?: number;
-  mainImage?: string;
-  specialOffer?: boolean;
-  popular?: boolean;
-}
+import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
 
 @Injectable()
 export class ProductService {
@@ -78,9 +45,9 @@ export class ProductService {
           create: {
             type: 'custom',
             value: `${width}x${height}x${depth}`,
-            width,
-            height,
-            depth,
+            width: parseInt(width),
+            height: parseInt(height),
+            depth: parseInt(depth),
           },
         },
         Color: {
@@ -98,7 +65,6 @@ export class ProductService {
 
     return product;
   }
-
 
   async getAllProducts(): Promise<Product[]> {
     return this.prisma.product.findMany({
@@ -170,22 +136,19 @@ export class ProductService {
     if (specialOffer !== undefined) updateData.specialOffer = specialOffer;
     if (popular !== undefined) updateData.popular = popular;
 
-
     if (imageUrl) {
       updateData.Image = { update: { url: imageUrl } };
     }
 
-
     if (width || height || depth) {
       updateData.Dimension = {
         update: {
-          width: width ? String(width) : undefined,
-          height: height ? String(height) : undefined,
-          depth: depth ? String(depth) : undefined,
+          width: width ? parseInt(width) : undefined,
+          height: height ? parseInt(height) : undefined,
+          depth: depth ? parseInt(depth) : undefined,
         },
       };
     }
-
 
     if (colors) {
       updateData.Color = {
@@ -193,7 +156,6 @@ export class ProductService {
         create: colors.map((color) => ({ name: color })),
       };
     }
-
 
     const updatedProduct = await this.prisma.product.update({
       where: { id: productId },
@@ -208,8 +170,11 @@ export class ProductService {
     return updatedProduct;
   }
 
-  async getRandomRecommendedProducts(excludedProductId: number, limit: number = 5): Promise<Product[]> {
 
+  async getRandomRecommendedProducts(
+    excludedProductId: number,
+    limit: number = 5
+  ): Promise<Product[]> {
     const randomProducts = await this.prisma.product.findMany({
       where: {
         NOT: {

@@ -1,4 +1,4 @@
-import { PrismaClient, Product } from '@prisma/client';
+import { PrismaClient, Product  } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -29,7 +29,6 @@ const products = [
     colors: ["white", "black", "blue"],
     specialOffer: true,
     popular: true,
-    relatedProducts: [2, 3],
   },
   {
     id: 2,
@@ -48,7 +47,6 @@ const products = [
     colors: ["grey", "navy", "beige"],
     specialOffer: false,
     popular: true,
-    relatedProducts: [1, 4],
   },
   {
     id: 3,
@@ -66,7 +64,6 @@ const products = [
     colors: ["oak", "white", "cherry"],
     specialOffer: false,
     popular: false,
-    relatedProducts: [1],
   },
   {
     id: 4,
@@ -84,7 +81,6 @@ const products = [
     colors: ["oak", "white", "cherry"],
     specialOffer: false,
     popular: false,
-    relatedProducts: [1],
   },
   {
     id: 5,
@@ -102,12 +98,44 @@ const products = [
     colors: ["oak", "white", "cherry"],
     specialOffer: false,
     popular: false,
-    relatedProducts: [1],
+  },
+  {
+    id: 6,
+    name: "Dining Table Set",
+    price: 450,
+    description: "Elegant dining table with 4 chairs",
+    rating: 4.7,
+    reviewCount: 678,
+    category: "Hallways",
+    mainImage: "product2.jpg",
+    images: ["product1.jpg", "product2.jpg"],
+    dimensions: [
+      { width: 120, height: 75, depth: 80 },
+    ],
+    colors: ["oak", "white", "cherry"],
+    specialOffer: false,
+    popular: false,
+  },
+  {
+    id: 7,
+    name: "Dining Table Set",
+    price: 450,
+    description: "Elegant dining table with 4 chairs",
+    rating: 4.7,
+    reviewCount: 678,
+    category: "Hallways",
+    mainImage: "product2.jpg",
+    images: ["product1.jpg", "product2.jpg"],
+    dimensions: [
+      { width: 120, height: 75, depth: 80 },
+    ],
+    colors: ["oak", "white", "cherry"],
+    specialOffer: false,
+    popular: false,
   },
 ];
 
 async function main() {
-  await prisma.relatedProduct.deleteMany();
   await prisma.color.deleteMany();
   await prisma.dimension.deleteMany();
   await prisma.image.deleteMany();
@@ -136,9 +164,9 @@ async function main() {
           create: product.dimensions.map((dimension) => ({
             type: "custom",
             value: `${dimension.width}x${dimension.height}x${dimension.depth}`,
-            width: dimension.width.toString(),
-            height: dimension.height.toString(),
-            depth: dimension.depth.toString(),
+            width: dimension.width,
+            height: dimension.height,
+            depth: dimension.depth,
           })),
         },
         Color: {
@@ -156,25 +184,6 @@ async function main() {
 
     createdProducts.push(createdProduct);
   }
-
-  // Обробка зв'язків relatedProducts
-  for (const product of products) {
-    const createdProduct = createdProducts.find((p) => p.id === product.id);
-    if (createdProduct) {
-      for (const relatedId of product.relatedProducts) {
-        const relatedProduct = createdProducts.find((p) => p.id === relatedId);
-        if (relatedProduct) {
-          await prisma.relatedProduct.create({
-            data: {
-              productId: createdProduct.id,
-              relatedId,
-            },
-          });
-        }
-      }
-    }
-  }
-
   console.log("Seed data inserted successfully!");
 }
 

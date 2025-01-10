@@ -9,11 +9,12 @@
         "outDir": "./dist",
         "rootDir": ".",
         "esModuleInterop": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "types": ["node", "jest"]
     },
     "include": [
         "src/**/*",
-        "prisma/**/*.ts"
+        "src/prisma/**/*.ts"
     ],
     "exclude": [
         "node_modules"

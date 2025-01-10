@@ -1,7 +1,8 @@
-import { Controller, Post, Body, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Delete, Param, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -9,19 +10,29 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() body: RegisterDto) {
-    try {
-      return await this.authService.register(body);
-    } catch (error) {
-      throw error;
-    }
+    return this.authService.register(body);
   }
 
   @Post('login')
   async login(@Body() body: LoginDto) {
-    try {
-      return await this.authService.login(body.email, body.password);
-    } catch (error) {
-      throw new UnauthorizedException(error.response?.message || 'Login failed');
+    return this.authService.login(body.email, body.password);
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  async getMe(@Request() req) {
+    console.log('User from AuthGuard:', req.user); // Логування користувача
+    return req.user;
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  async deleteUser(@Param('id') id: string, @Request() req) {
+    const userRole = req.user.role;
+    if (userRole !== 'admin') {
+      throw new UnauthorizedException('You are not authorized to delete this user');
     }
+
+    return this.authService.deleteUser(id);
   }
 }

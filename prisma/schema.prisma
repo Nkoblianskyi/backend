@@ -7,70 +7,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Product {
+  id           Int         @id @default(autoincrement())
+  name         String
+  price        Float
+  description  String
+  rating       Float?
+  reviewCount  Int?
+  category     String?
+  mainImage    String
+  specialOffer Boolean?
+  popular      Boolean?
+  Image        Image[]     @relation("ProductImages")
+  Color        Color[]     @relation("ProductColors")
+  Dimension    Dimension[] @relation("ProductDimensions")
+  Cart         Cart[]
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String
+  phone     String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Cart      Cart[]
+}
+
+model Image {
+  id        Int     @id @default(autoincrement())
+  url       String
+  productId Int
+  product   Product @relation("ProductImages", fields: [productId], references: [id])
+}
+
 model Color {
   id        Int     @id @default(autoincrement())
   name      String
   productId Int
-  Product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation("ProductColors", fields: [productId], references: [id])
 }
 
 model Dimension {
-  id        Int     @id @default(autoincrement())
-  productId Int
-  depth     String
-  height    String
-  width     String
-  type      String
-  value     String
-  Product   Product @relation(fields: [productId], references: [id])
-}
-
-model Image {
   id        Int      @id @default(autoincrement())
-  url       String
-  productId Int
-  createdAt DateTime @default(now())
-  Product   Product  @relation(fields: [productId], references: [id])
-}
-
-model Product {
-  id                                               Int              @id @default(autoincrement())
-  name                                             String
-  price                                            Float
-  description                                      String
-  rating                                           Float
-  reviewCount                                      Int
-  category                                         String
-  mainImage                                        String
-  specialOffer                                     Boolean
-  popular                                          Boolean
-  Color                                            Color[]
-  Dimension                                        Dimension[]
-  Image                                            Image[]
-  RelatedProduct_RelatedProduct_productIdToProduct RelatedProduct[] @relation("RelatedProduct_productIdToProduct")
-  RelatedProduct_RelatedProduct_relatedIdToProduct RelatedProduct[] @relation("RelatedProduct_relatedIdToProduct")
-}
-
-model RelatedProduct {
-  id                                        Int     @id @default(autoincrement())
-  productId                                 Int
-  relatedId                                 Int
-  Product_RelatedProduct_productIdToProduct Product @relation("RelatedProduct_productIdToProduct", fields: [productId], references: [id])
-  Product_RelatedProduct_relatedIdToProduct Product @relation("RelatedProduct_relatedIdToProduct", fields: [relatedId], references: [id])
-}
-
-model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  phone    String @unique
-  name     String
-  password String
-  role     String @default("user")
-}
-
-enum Role {
-  ADMIN
-  USER
-  MODERATOR
-  GUEST
+  width     Int
+  height    Int
+  depth     Int
+  value     String
+  type      String
+  productId Int?
+  product   Product? @relation("ProductDimensions", fields: [productId], references: [id])
 }

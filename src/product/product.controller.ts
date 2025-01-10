@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body, Delete, Put, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Delete, Put, NotFoundException, ParseIntPipe } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Product } from '@prisma/client';
 import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
@@ -41,7 +41,10 @@ export class ProductController {
 
 
   @Put(':id')
-  async updateProduct(@Param('id') id: number, @Body() productData: UpdateProductDto): Promise<Product> {
+  async updateProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() productData: UpdateProductDto
+  ): Promise<Product> {
     return this.productService.updateProduct(id, productData);
   }
 
