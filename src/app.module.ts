@@ -5,11 +5,13 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { CartModule } from './cart/cart.module';
+import { UserModule } from './user/user.module';
 @Module({
   imports: [
     ProductModule,
     CartModule,
     AuthModule,
+    UserModule,
     PrismaModule,
     ConfigModule.forRoot({
       isGlobal: true,

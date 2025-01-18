@@ -21,7 +21,6 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard)
   async getMe(@Request() req) {
-    console.log('User from AuthGuard:', req.user);
     return req.user;
   }
 
@@ -32,7 +31,6 @@ export class AuthController {
     if (userRole !== 'admin') {
       throw new UnauthorizedException('You are not authorized to delete this user');
     }
-
     return this.authService.deleteUser(id);
   }
 }
