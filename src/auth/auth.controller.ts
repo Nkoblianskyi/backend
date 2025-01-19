@@ -21,6 +21,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard)
   async getMe(@Request() req) {
+    console.log('Authorization Header:', req.headers.authorization);
     return req.user;
   }
 
