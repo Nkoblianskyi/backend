@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';  // Імпортуємо JwtModule
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -21,4 +21,4 @@ import { PrismaService } from '../../prisma/prisma.service';
   providers: [AuthService, PrismaService],
   exports: [JwtModule],
 })
-export class AuthModule { }
+export class AuthModule {}

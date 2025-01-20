@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Delete, Param, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Delete, Param, UseGuards, Request, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -14,14 +14,20 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() body: LoginDto) {
-    return this.authService.login(body.email, body.password);
+  async login(@Body() loginDto: LoginDto): Promise<string> {
+    if (!loginDto.email || !loginDto.password) {
+      throw new BadRequestException('Email and password are required');
+    }
+    const { token } = await this.authService.login(loginDto.email, loginDto.password);
+    return token;
   }
 
   @Get('me')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)  // Захист за допомогою токена
   async getMe(@Request() req) {
-    console.log('User from AuthGuard:', req.user);
+    if (!req.user) {
+      throw new UnauthorizedException('You are not authorized');
+    }
     return req.user;
   }
 
@@ -32,7 +38,6 @@ export class AuthController {
     if (userRole !== 'admin') {
       throw new UnauthorizedException('You are not authorized to delete this user');
     }
-
     return this.authService.deleteUser(id);
   }
 }
