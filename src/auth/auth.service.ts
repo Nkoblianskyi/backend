@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
+import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -9,8 +10,18 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
   ) { }
+  async deleteUser(id: string): Promise<{ message: string }> {
+    const user = await this.prisma.user.delete({
+      where: { id },
+    });
+    return { message: `User with id ${id} deleted successfully` };
+  }
+  async register(data: { email: string; password: string; name: string; phone: string; role: string }): Promise<{ id: string; email: string }> {
+    const existingUser = await this.prisma.user.findUnique({ where: { email: data.email } });
+    if (existingUser) {
+      throw new UnauthorizedException('User with this email already exists');
+    }
 
-  async register(data: { email: string; password: string; name: string; phone: string; role: string }) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = await this.prisma.user.create({
       data: {
@@ -24,7 +35,7 @@ export class AuthService {
     return { id: user.id, email: user.email };
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<{ token: string }> {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -35,17 +46,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const token = this.jwtService.sign({ id: user.id, email: user.email, role: user.role, name: user.name });
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const token = this.jwtService.sign(payload);
+    console.log('Generated Token:', token);
+
     return { token };
   }
 
-  async validateUser(id: string) {
-    return this.prisma.user.findUnique({ where: { id } });
-  }
-
-  async deleteUser(userId: string) {
-    return this.prisma.user.delete({
-      where: { id: userId },
-    });
-  }
 }

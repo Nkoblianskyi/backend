@@ -1,3 +1,5 @@
+// src/user/user.service.ts
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,17 +16,17 @@ export class UserService {
     }
 
     async getProfile(userId: string): Promise<User> {
-        console.log("Fetching user with ID:", userId);
-        try {
-            const user = await this.prisma.user.findUnique({
-                where: { id: userId },
-            });
-            console.log("Found user:", user);
-            return user;
-        } catch (error) {
-            console.error("Error fetching user:", error);
-            throw new Error('Unable to fetch user');
+        console.log('Fetching user with ID:', userId);
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            console.log('No user found for ID:', userId);
+            throw new Error('User not found');
         }
+        console.log('Found user:', user);
+        return user;
     }
 
     async updateProfile(userId: string, updateUserDto: UpdateUserDto): Promise<User> {

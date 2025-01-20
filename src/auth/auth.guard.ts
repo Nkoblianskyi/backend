@@ -16,20 +16,20 @@ export class AuthGuard implements CanActivate {
         const request = context.switchToHttp().getRequest();
         const authHeader = request.headers.authorization;
 
+        // Перевірка наявності токену
+        console.log('Authorization Header:', authHeader);
+
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            console.error('Invalid or missing token in Authorization header');
             throw new UnauthorizedException('No token provided or invalid format');
         }
 
         const token = authHeader.split(' ')[1];
 
         try {
-            const user: JwtPayload = this.jwtService.verify<JwtPayload>(token);
-            request.user = {
-                id: user.id,
-                email: user.email,
-                role: user.role,
-                name: user.name,
-            };
+            const user = this.jwtService.verify<JwtPayload>(token);
+            console.log('Decoded Token:', user);
+            request.user = user;
             return true;
         } catch (error) {
             console.error('Token verification error:', error.message);

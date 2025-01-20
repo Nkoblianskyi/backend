@@ -1,21 +1,24 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UserService } from '../user.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-    constructor(private usersService: UserService) {
-        super();
-    }
-
-    async canActivate(context: ExecutionContext): Promise<boolean> {
+    canActivate(context: ExecutionContext): boolean | Promise<boolean> {
         const request = context.switchToHttp().getRequest();
-        const user = await this.usersService.findById(request.user.id);
+        const authHeader = request.headers['authorization'];
 
-        if (!user) {
-            throw new Error('User not found');
+        if (!authHeader) {
+            console.log('Authorization Header is missing');
+            throw new UnauthorizedException('No token provided or invalid format');
         }
 
+        const token = authHeader.split(' ')[1];
+        if (!token) {
+            console.log('Invalid Authorization Header format');
+            throw new UnauthorizedException('Token is missing in the Authorization header');
+        }
+
+        console.log('Authorization Header is valid. Token:', token);
         return super.canActivate(context) as boolean;
     }
 }
